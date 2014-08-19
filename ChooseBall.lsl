@@ -1,21 +1,36 @@
-integer weight = 10;
-vector basePos = <-2,1,2>;
+integer weight = 6;
+
 default
 {
-    touch_start(integer e) {
-        llMessageLinked(1, weight, "chosen", llGetKey());
-    }
+    state_entry() {
+        llSetStatus(STATUS_PHYSICS, TRUE);   
+        llSetStatus(STATUS_SANDBOX, TRUE); 
+        llSetStatus(STATUS_PHANTOM, FALSE); 
+   }
+
     
-    link_message(integer sender_num, integer num, string msg, key id)
+    dataserver(key id, string msg)
     {
-        if (id == llGetKey()) {
-            if (msg=="chosenRight") {
-                llSetPos(<0,1,1>);
-            } else if (msg=="chosenLeft") {
-                llSetPos(<0,-1,1>);
-            } else if (msg=="unchosen") {
-                llSetPos(basePos);
-            }
+        vector move;
+        if (msg=="chosenRight") {
+            move = <0,1,1>;
+            llSetStatus(STATUS_PHYSICS, FALSE);  
+            llSetPos(llList2Vector(llGetObjectDetails(id, [OBJECT_POS]), 0) + move);
+        } else if (msg=="chosenLeft") {
+            move = <0,-1,1>;
+            llSetStatus(STATUS_PHYSICS, FALSE); 
+            llSetPos(llList2Vector(llGetObjectDetails(id, [OBJECT_POS]), 0) + move); 
+        } else if (msg=="unchosen") {
+            llSetStatus(STATUS_PHYSICS, TRUE);  
+            llSetStatus(STATUS_SANDBOX, TRUE); 
         }
+    }
+    touch_start(integer e) {
+        llResetTime();   
+    }
+    touch_end(integer e) {
+        if (llGetTime() < 0.5) {
+            llSay(601023717, (string)weight);  
+        } 
     }
 }
